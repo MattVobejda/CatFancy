@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Cat Fancy</title>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script type ="text/javascript" src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			var socket = io.connect();
+			$('#button').click(function(){
+				clickButton();
+			})
+			$(document).keypress(function(e){
+				if(e.keyCode==13){
+					clickButton();
+				}	
+			})
+			function clickButton(){
+
+				//console.log("inside button click");
+				//alert("You clicked a button!");
+				var cur_message = $('#chat_message').val();
+				var user_name = $('#user_name').val();
+				socket.emit("button_clicked", {message: cur_message, user: user_name});
+				$('#chat_window').append('<div style="font-style:italic">'+ user_name+': '+ cur_message +'</div>');
+				$('#chat_message').val("");
+			}
+			$('img').click(function(){
+				var id=$(this).attr('id');
+			    $.get("/"+id, function(res){
+			    	console.log(res);
+
+			       	var code="<div class='cat_detail'><h2>Cat Bio</h2><h4>Name: "+res.name+"</h4><h4>Favorite Team: "+res.favoriteTeam+"</h4><h4>Favorite Song: "+res.favoriteSong+"</h4></div>";
+			       	$('#cat').html(code);
+			    }, "json");
+			})
+			socket.on('server_response', function (data){
+			    console.log('The server says: ' + data.response);
+			    $('#chat_window').append('<div style="font-weight:bold">'+data.user+': '+ data.response +'</div>');
+			});
+
+		})
+	</script>
+</head>
+<body>
+	<h1>Cat Fancy Rocks!</h1>
+	<div style="border: solid 1px black">
+		<img class="image2" id="1" src="/images/packer_cat.jpg" alt="Packer Cat Image" style="height:100px;width:100px">
+		<img class="image2" id="2" src="/images/viking_cat.jpg" alt="Vikings Cat Image" style="height:100px;width:100px">
+		<img class="image2" id="3" src="/images/vb_cat.jpg" alt="vb Cat Image" style="height:100px;width:200px">
+	</div>
+	<div id="cat" style="border: solid 1px black">
+		
+	</div>
+	<div>
+		<input id="user_name" type="text" name="" placeholder="User Name">
+		<input id="chat_message" type="text" name="chat_message">
+		<!-- <button>Send</button> -->
+		<input id="button" type="submit" name="" value="Send">
+		<div id="chat_window" style="border: solid 1px black">
+			
+		</div>
+	</div>
+</body>
+</html>
